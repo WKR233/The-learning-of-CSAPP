@@ -1,0 +1,63 @@
+# 王柯然 2100017727@stu.pku.edu.cn
+# Execution begins at address 0 
+	.pos 0
+	irmovq stack, %rsp  	# Set up stack pointer
+	call main		# Execute main program
+	halt			# Terminate program 
+
+# Sample linked list
+    .align 8
+array:
+    .quad 0xbca
+    .quad 0xcba
+    .quad 0xacb
+    .quad 0xcab
+    .quad 0xabc
+    .quad 0xbac
+
+main:	
+    irmovq array,%rdi
+    irmovq $6,%rsi
+	call bubble_sort		# sum(array, 4)
+	ret
+
+# long sum(long *start, long count)
+# data in %rdi, count in %rsi, last in %rcx, i in %rdx
+bubble_sort:
+    irmovq $1,%r8
+    irmovq $8,%r9
+    subq %r8,%rsi
+    addq %rsi,%rsi #2
+    addq %rsi,%rsi #4
+    addq %rsi,%rsi # multq $8,%rsi  #8(count-1)
+    rrmovq %rdi,%rcx
+    addq %rsi,%rcx  #last=data+count-1
+    jmp test1
+loop1:
+    rrmovq %rdi,%rdx  #i=data
+    jmp test2
+loop2:
+    mrmovq (%rdx),%r12
+    mrmovq 8(%rdx),%r13
+    subq %r13,%r12  # *i<=*(i+1)
+    jle ad
+    mrmovq 8(%rdx),%r10
+    mrmovq (%rdx),%r11
+    rmmovq %r11,8(%rdx)
+    rmmovq %r10,(%rdx)  # swap *(i+1) and *i
+ad:
+    addq %r9,%rdx
+test2:
+    rrmovq %rcx,%r12
+    subq %rdx,%r12  # %rcx>%rdx?
+    jg  loop2
+    subq %r9,%rcx
+test1:
+    rrmovq %rcx,%r12
+    subq %rdi,%r12  # %rcx>%rdi?
+    jg loop1
+    ret
+
+# Stack starts here and grows to lower addresses
+	.pos 0x200
+stack:

@@ -1,0 +1,44 @@
+# 王柯然 2100017727@stu.pku.edu.cn
+# Execution begins at address 0 
+	.pos 0
+	irmovq stack, %rsp  	# Set up stack pointer
+	call main		# Execute main program
+	halt			# Terminate program 
+
+# Sample linked list
+    .align 8
+array:
+ele1:
+    .quad 0x00a
+    .quad ele2
+ele2:
+    .quad 0x0b0
+    .quad ele3
+ele3:
+    .quad 0xc00
+    .quad 0
+
+main:	
+    irmovq array,%rdi
+	call rsum_list		# sum(array, 4)
+	ret
+
+# long sum(long *start, long count)
+# start in %rdi, count in %rsi
+rsum_list:
+    irmovq $0,%rax
+    andq %rdi,%rdi
+    jne nxt
+    ret
+nxt:
+    mrmovq (%rdi),%rcx
+    mrmovq 8(%rdi),%rdi
+    pushq %rcx
+    call rsum_list
+    popq %rcx
+    addq %rcx,%rax
+    ret
+
+# Stack starts here and grows to lower addresses
+	.pos 0x200
+stack:

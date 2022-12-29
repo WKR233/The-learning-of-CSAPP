@@ -1,0 +1,63 @@
+                            | # 2100017727@stu.pku.edu.cn
+                            | # Execution begins at address 0 
+0x000:                      | 	.pos 0
+0x000: 30f40002000000000000 | 	irmovq stack, %rsp  	# Set up stack pointer
+0x00a: 804800000000000000   | 	call main		# Execute main program
+0x013: 00                   | 	halt			# Terminate program 
+                            | 
+                            | # Sample linked list
+0x018:                      |     .align 8
+0x018:                      | array:
+0x018: ca0b000000000000     |     .quad 0xbca
+0x020: ba0c000000000000     |     .quad 0xcba
+0x028: cb0a000000000000     |     .quad 0xacb
+0x030: ab0c000000000000     |     .quad 0xcab
+0x038: bc0a000000000000     |     .quad 0xabc
+0x040: ac0b000000000000     |     .quad 0xbac
+                            | 
+0x048:                      | main:	
+0x048: 30f71800000000000000 |     irmovq array,%rdi
+0x052: 30f60600000000000000 |     irmovq $6,%rsi
+0x05c: 806600000000000000   | 	call bubble_sort		# sum(array, 4)
+0x065: 90                   | 	ret
+                            | 
+                            | # long sum(long *start, long count)
+                            | # data in %rdi, count in %rsi, last in %rcx, i in %rdx
+0x066:                      | bubble_sort:
+0x066: 30f80100000000000000 |     irmovq $1,%r8
+0x070: 30f90800000000000000 |     irmovq $8,%r9
+0x07a: 6186                 |     subq %r8,%rsi
+0x07c: 6066                 |     addq %rsi,%rsi #2
+0x07e: 6066                 |     addq %rsi,%rsi #4
+0x080: 6066                 |     addq %rsi,%rsi # multq $8,%rsi  #8(count-1)
+0x082: 2071                 |     rrmovq %rdi,%rcx
+0x084: 6061                 |     addq %rsi,%rcx  #last=data+count-1
+0x086: 70f200000000000000   |     jmp test1
+0x08f:                      | loop1:
+0x08f: 2072                 |     rrmovq %rdi,%rdx  #i=data
+0x091: 70e300000000000000   |     jmp test2
+0x09a:                      | loop2:
+0x09a: 50c20000000000000000 |     mrmovq (%rdx),%r12
+0x0a4: 50d20800000000000000 |     mrmovq 8(%rdx),%r13
+0x0ae: 61dc                 |     subq %r13,%r12  # *i<=*(i+1)
+0x0b0: 71e100000000000000   |     jle ad
+0x0b9: 50a20800000000000000 |     mrmovq 8(%rdx),%r10
+0x0c3: 50b20000000000000000 |     mrmovq (%rdx),%r11
+0x0cd: 40b20800000000000000 |     rmmovq %r11,8(%rdx)
+0x0d7: 40a20000000000000000 |     rmmovq %r10,(%rdx)  # swap *(i+1) and *i
+0x0e1:                      | ad:
+0x0e1: 6092                 |     addq %r9,%rdx
+0x0e3:                      | test2:
+0x0e3: 201c                 |     rrmovq %rcx,%r12
+0x0e5: 612c                 |     subq %rdx,%r12  # %rcx>%rdx?
+0x0e7: 769a00000000000000   |     jg  loop2
+0x0f0: 6191                 |     subq %r9,%rcx
+0x0f2:                      | test1:
+0x0f2: 201c                 |     rrmovq %rcx,%r12
+0x0f4: 617c                 |     subq %rdi,%r12  # %rcx>%rdi?
+0x0f6: 768f00000000000000   |     jg loop1
+0x0ff: 90                   |     ret
+                            | 
+                            | # Stack starts here and grows to lower addresses
+0x200:                      | 	.pos 0x200
+0x200:                      | stack:
